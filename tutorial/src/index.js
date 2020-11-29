@@ -52,7 +52,6 @@ class Game extends React.Component {
     }
 
     setWidth(width) {
-        console.log("setWidth", width);
         this.setState(this._resetState(width));
     }
 
