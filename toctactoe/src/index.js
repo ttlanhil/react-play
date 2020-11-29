@@ -151,19 +151,27 @@ class Game extends React.Component {
         }
 
         return (
-            <div className="game">
-                <div className="game-info">
-                    <div>{status}</div>
-                    <ul>{resizes}</ul>
-                    <ol>{moves}</ol>
+            <div>
+                <div>
+                    tic tac toe game based on React tutorial: <a href="https://reactjs.org/tutorial/tutorial.html">https://reactjs.org/tutorial/tutorial.html</a>
+                    <br/>
+                    Includes each of the additional tasks, as well as allowing multiple board sizes
                 </div>
-                <div className="game-board">
-                <Board
-                    squares={current.squares}
-                    winningSquares={winningSquares || []}
-                    onClick={(i) => this.handleClick(i)}
-                    width={this.state.width}
-                />
+                <br/>
+                <div className="game">
+                    <div className="game-info">
+                        <div>{status}</div>
+                        <ul>{resizes}</ul>
+                        <ol>{moves}</ol>
+                    </div>
+                    <div className="game-board">
+                    <Board
+                        squares={current.squares}
+                        winningSquares={winningSquares || []}
+                        onClick={(i) => this.handleClick(i)}
+                        width={this.state.width}
+                    />
+                    </div>
                 </div>
             </div>
         );
