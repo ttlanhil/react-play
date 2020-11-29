@@ -39,19 +39,30 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
+
+    _resetState(width) {
+        return {
             history: [{
-                squares: Array(props.width*props.width).fill(null)
+                squares: Array(width*width).fill(null)
             }],
             stepNumber: 0,
             xIsNext: true,
-        };
+            width: width
+        }
+    }
+
+    setWidth(width) {
+        console.log("setWidth", width);
+        this.setState(this._resetState(width));
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = this._resetState(props.width || 3);
     }
 
     calculateWinner() {
-        const width = this.props.width;
+        const width = this.state.width;
         const history = this.state.history;
         const squares = history[this.state.stepNumber].squares;
 
@@ -87,7 +98,7 @@ class Game extends React.Component {
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         this.setState({
             history: history.concat([{
-                squares: squares
+                squares: squares,
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
@@ -105,6 +116,14 @@ class Game extends React.Component {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const {winningPlayer, winningSquares} = this.calculateWinner();
+
+        const resizes = [2, 3, 4, 5, 6].map((size) => {
+            return (
+                <li key={size}>
+                    <button onClick={() => this.setWidth(size)}>New {size} x {size}</button>
+                </li>
+            );
+        });
 
         const moves = history.map((step, move) => {
             const desc = move ?
@@ -128,17 +147,18 @@ class Game extends React.Component {
 
         return (
             <div className="game">
+                <div className="game-info">
+                    <div>{status}</div>
+                    <ul>{resizes}</ul>
+                    <ol>{moves}</ol>
+                </div>
                 <div className="game-board">
                 <Board
                     squares={current.squares}
                     winningSquares={winningSquares || []}
                     onClick={(i) => this.handleClick(i)}
-                    width={this.props.width}
+                    width={this.state.width}
                 />
-                </div>
-                <div className="game-info">
-                    <div>{status}</div>
-                    <ol>{moves}</ol>
                 </div>
             </div>
         );
