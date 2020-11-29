@@ -99,6 +99,7 @@ class Game extends React.Component {
         this.setState({
             history: history.concat([{
                 squares: squares,
+                lastMove: i,
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
@@ -126,9 +127,14 @@ class Game extends React.Component {
         });
 
         const moves = history.map((step, move) => {
-            const desc = move ?
-                'Go to move #' + move :
-                'Go to game start';
+            let desc = 'Go back to start of game';
+            if (move > 0){
+                let x = Math.floor(history[move].lastMove / this.state.width);
+                let y = history[move].lastMove % this.state.width;
+                let player = (move % 2) === 0 ? 'O' : 'X';  // different order because it's for current player, not next player as in other places
+                desc = `Go to move #${move} (${x},${y} = ${player})`;
+            }
+
             return (
                 <li key={move} style={move === this.state.stepNumber ? {fontWeight:"bold"} : {}}>
                     <button onClick={() => this.jumpTo(move)}>{desc}</button>
