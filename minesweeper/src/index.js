@@ -4,7 +4,7 @@ import './index.css';
 
 function Square(props) {
     return (
-        <button className={"square" + (props.open ? ' open' : '')} onClick={props.onClick}>
+        <button className={"square" + (props.open ? ' open' : '')} onClick={props.onClick} onContextMenu={props.onContextMenu}>
             {props.value}
         </button>
     );
@@ -16,9 +16,10 @@ class Board extends React.Component {
             <Square
                 key={i}
                 // only show value once opened
-                value={this.props.squares[i].open ? this.props.squares[i].value : ""}
+                value={this.props.squares[i].open ? this.props.squares[i].value : this.props.squares[i].flagged}
                 open={this.props.squares[i].open}
                 onClick={() => this.props.onClick(i)}
+                onContextMenu={(e) => this.props.onContextMenu(i, e)}
             />
         );
     }
@@ -46,7 +47,7 @@ class Game extends React.Component {
         // build the board
         const squares = Array(width*height);
         for (let i = 0; i < squares.length; ++i){
-            squares[i] = {open: false, value: ''};
+            squares[i] = {open: false, flagged: '', value: ''};
         }
 
         //add mines
@@ -73,17 +74,39 @@ class Game extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = this._resetState(props.width || 10, props.height || 5, props.count || 10);
+        this.state = this._resetState(props.width || 10, props.height || 5, props.count || 5);
+    }
+
+    handleContextMenu(square, event) {
+        if (this.state.finished){
+            return;
+        }
+
+        const squares = this.state.squares.slice();
+        if (squares[square].open) {
+            return;
+        }
+        squares[square].flagged = squares[square].flagged ? '' : '!';
+        this.setState({
+            squares: squares,
+        });
+        event.preventDefault();
     }
 
     handleClick(square) {
         if (this.state.finished){
             return;
         }
+
         const squares = this.state.squares.slice();
         if (squares[square].open) {
             return;
         }
+
+        if (squares[square].flagged) {
+            return;
+        }
+
         squares[square].open = true;
 
         if (squares[square].value === 'X') {
@@ -131,13 +154,16 @@ class Game extends React.Component {
     }
 
     render() {
-        const resizes = [10, 20, 50].map((size) => {
-            const width = size;
-            const height = Math.floor(size/2);
-            const count = width;
+        const presetSizes = {
+            easy: {width: 10, height: 10, count: 10*10*0.1},
+            medium: {width: 20, height: 15, count: 20*15*0.2},
+            hard: {width: 30, height: 20, count: 30*20*0.3},
+        };
+        const resizes = Object.keys(presetSizes).map((name) => {
+            const size = presetSizes[name];
             return (
                 <li key={size}>
-                    <button onClick={() => this.setSize(width, height, count)}>New {width} x {height} with {count} mines</button>
+                    <button onClick={() => this.setSize(size.width, size.height, size.count)}>New {name} game</button>  ({size.width} x {size.height} with {size.count} mines)
                 </li>
             );
         });
@@ -157,6 +183,7 @@ class Game extends React.Component {
                 <Board
                     squares={this.state.squares}
                     onClick={(i) => this.handleClick(i)}
+                    onContextMenu={(i, e) => this.handleContextMenu(i, e)}
                     width={this.state.width}
                     height={this.state.height}
                     count={this.state.count}
