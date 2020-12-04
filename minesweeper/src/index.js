@@ -56,7 +56,7 @@ class Game extends React.Component {
             while (position == null || squares[position].value) {
                 position = Math.floor(Math.random() * squares.length);
             }
-            squares[position].value = "X";
+            squares[position].value = "💣";
         }
 
         return {
@@ -86,7 +86,7 @@ class Game extends React.Component {
         if (squares[square].open) {
             return;
         }
-        squares[square].flagged = squares[square].flagged ? '' : '!';
+        squares[square].flagged = squares[square].flagged ? '' : '🚩';
         this.setState({
             squares: squares,
         });
@@ -109,7 +109,7 @@ class Game extends React.Component {
 
         squares[square].open = true;
 
-        if (squares[square].value === 'X') {
+        if (squares[square].value) {
             this.setState({finished: 'Mine hit, game lost'});
         } else {
             const topOffset = (square / this.state.width) < 1 ? 0 : -1;
@@ -129,7 +129,8 @@ class Game extends React.Component {
 
             let count = 0;
             for (let i = 0; i < adjacent.length; ++i) {
-                if (squares[adjacent[i]].value === 'X') {
+                // if it has a value and isn't yet opened, it's a mine
+                if (squares[adjacent[i]].value && ! squares[adjacent[i]].open) {
                     ++count;
                 }
             }
