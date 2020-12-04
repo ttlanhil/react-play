@@ -232,17 +232,20 @@ class Game extends React.Component {
 
     render() {
         const presetSizes = {
-            easy: {width: 10, height: 10, count: 10*10*0.1},
-            medium: {width: 20, height: 15, count: 20*15*0.2},
-            hard: {width: 30, height: 20, count: 30*20*0.3},
+            trivial: {width: 20, height: 20, rate: 0.025},
+            easy: {width: 10, height: 10, rate: 0.1},
+            medium: {width: 20, height: 15, rate: 0.2},
+            hard: {width: 30, height: 20, rate: 0.3},
+            evil: {width: 25, height: 25, rate: 0.4},
         };
         const resizes = Object.keys(presetSizes).map((name) => {
             const size = presetSizes[name];
+            const count = size.count || Math.floor(size.width * size.height * size.rate);
             return (
                 <div key={name}>
-                    <button onClick={() => this.setSize(size.width, size.height, size.count)}>New {name} game</button>
+                    <button onClick={() => this.setSize(size.width, size.height, count)}>New {name} game</button>
                     <br/>
-                    {size.width} x {size.height} with {size.count} mines
+                    {size.width} x {size.height} with {count} mines
                     <br/>
                 </div>
             );
