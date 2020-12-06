@@ -122,6 +122,10 @@ class Game extends React.Component {
         this.state = this.buildPuzzle(quoteNumber);
     }
 
+    changePuzzle(quoteNumber) {
+        this.setState(this.buildPuzzle(quoteNumber));
+    }
+
     checkPuzzle(solveAttempt) {
         // TODO: mark where same letter used multiple times?
         for (let i = 0; i < solveAttempt.length; ++i) {
@@ -171,12 +175,27 @@ class Game extends React.Component {
 
     render() {
 
-        let status = this.state.finished ? "Game solved!" : `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
+        let navButtons = [];
+        if (this.state.quoteNumber > 0) {
+            navButtons.push(<button key='prev' onClick={() => this.changePuzzle(this.state.quoteNumber-1)}>Previous</button>);
+        }
+        if (this.state.quoteNumber < quotes.length) {
+            navButtons.push(<button key='next' onClick={() => this.changePuzzle(this.state.quoteNumber+1)}>Next</button>);
+        }
+
+        let status;
+        if (this.state.finished) {
+            status = "Game solved!"
+        } else {
+            status = `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
+        }
         // TODO: allow going to prev/next puzzles
 
         return (
             <div>
-                <div>
+                <div className="gameStatus">
+                    {navButtons}
+                    <br />
                     {status}
                 </div>
                 <div>
