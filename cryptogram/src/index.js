@@ -4,6 +4,15 @@ import './index.scss';
 import quotes from './quotes.json';
 
 
+function getCharCode(character) {
+    return character.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+}
+
+function isLetter(charCode) {
+    return charCode >= 0 && charCode <= 26;
+}
+
+
 function LetterDisplay(props) {
     return (
         <span className={props.className}>
@@ -22,13 +31,12 @@ function LetterDisplay(props) {
 
 class Puzzle extends React.Component {
     renderLetter(character, i) {
-        const charCode = character.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
-        const isLetter = charCode >= 0 && charCode <= 26;
-        if (!isLetter) {
+        const charCode = getCharCode(character);
+        if (!isLetter(charCode)) {
             return <span key={i} className='spacer'>{character}</span>
         }
         const cyphered = this.props.cypher[charCode]
-        const cypheredCharCode = cyphered.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+        const cypheredCharCode = getCharCode(cyphered);
         return (
             <LetterDisplay
                 key={i}
@@ -81,7 +89,7 @@ function sattoloCycle(items, filterReverseSet) {
         if (!filterReverseSet.has(character)) {
             continue;
         }
-        reverseMap[items[i].charCodeAt(0) - 'A'.charCodeAt(0)] = character;
+        reverseMap[getCharCode(items[i])] = character;
     }
 
     return reverseMap;
@@ -125,7 +133,7 @@ class Game extends React.Component {
     handleChange(i, cyphered) {
         const letter = document.getElementById("input-"+i).value;
         const solveAttempt = this.state.solveAttempt.slice();
-        solveAttempt[cyphered.charCodeAt(0) - "A".charCodeAt(0)] = letter.toUpperCase();
+        solveAttempt[getCharCode(cyphered)] = letter.toUpperCase();
         if (this.checkPuzzle(solveAttempt)){
             this.setState({finished: true});
         } else {
@@ -134,12 +142,11 @@ class Game extends React.Component {
             for (let j = 1; j < this.state.quote.Quote.length; ++j) {
                 const idx = (j + i) % this.state.quote.Quote.length;
                 const character = this.state.quote.Quote[idx].toUpperCase();
-                const charCode = character.charCodeAt(0) - 'A'.charCodeAt(0);
-                const isLetter = charCode >= 0 && charCode <= 26;
-                if (!isLetter) {
+                const charCode = getCharCode(character);
+                if (!isLetter(charCode)) {
                     continue;
                 }
-                const cypheredCharCode = this.state.cypher[charCode].charCodeAt(0) - 'A'.charCodeAt(0);
+                const cypheredCharCode = getCharCode(this.state.cypher[charCode]);
                 if (!solveAttempt[cypheredCharCode]){
                     const elem = document.getElementById("input-"+idx);
                     if (elem) {
