@@ -16,7 +16,6 @@ class Puzzle extends React.Component {
     renderLetter(character, i) {
         const charCode = character.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
         const isLetter = charCode >= 0 && charCode <= 26;
-//         console.log("renderLetter", character, i, charCode, isLetter, this.props.focusLetter);
         if (!isLetter) {
             return <span key={i} className='spacer'>{character}</span>
         }
@@ -103,7 +102,6 @@ class Game extends React.Component {
         const quoteNumber = 0;
         // TODO: store progress in cookie?
         this.state = this.buildPuzzle(quoteNumber);
-//         console.log(this.state);
     }
 
     checkPuzzle(solveAttempt) {
