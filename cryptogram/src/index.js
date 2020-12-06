@@ -103,7 +103,7 @@ class Game extends React.Component {
         const quote = quotes[quoteNumber];
         // build a cypher for the letters A-Z
         let cypher = [...Array(26)].map((_, i) => String.fromCharCode('A'.charCodeAt(0) + i));
-        const goal = sattoloCycle(cypher, new Set(quote.Quote));
+        const goal = sattoloCycle(cypher, new Set(quote.Quote.toUpperCase()));
         return {
             quoteNumber: quoteNumber,
             quote: quote,
