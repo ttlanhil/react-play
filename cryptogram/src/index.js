@@ -7,7 +7,7 @@ import quotes from './quotes.json';
 function LetterDisplay(props) {
     return (
         <span className={props.className}>
-            <input id={props.id} maxLength='1' onChange={props.onChange} value={props.value} onFocus={props.onFocus} onBlur={props.onBlur} />
+            <input id={props.id} maxLength='1' onChange={props.onChange} value={props.value} onFocus={props.onFocus} onBlur={props.onBlur} onClick={(e) => e.currentTarget.select()} />
         </span>
     );
 }
