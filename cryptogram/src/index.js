@@ -7,7 +7,7 @@ import quotes from './quotes.json';
 function LetterDisplay(props) {
     return (
         <span className={props.className}>
-            <input maxLength='1' onChange={props.onChange} value={props.value} onFocus={props.onFocus} onBlur={props.onBlur} />
+            <input id={props.id} maxLength='1' onChange={props.onChange} value={props.value} onFocus={props.onFocus} onBlur={props.onBlur} />
         </span>
     );
 }
@@ -16,7 +16,7 @@ class Puzzle extends React.Component {
     renderLetter(character, i) {
         const charCode = character.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
         const isLetter = charCode >= 0 && charCode <= 26;
-        console.log("renderLetter", character, i, charCode, isLetter, this.props.focusLetter);
+//         console.log("renderLetter", character, i, charCode, isLetter, this.props.focusLetter);
         if (!isLetter) {
             return <span key={i} className='spacer'>{character}</span>
         }
@@ -25,6 +25,7 @@ class Puzzle extends React.Component {
         return (
             <LetterDisplay
                 key={i}
+                id={'input-' + i}
                 value={this.props.solveAttempt[cypheredCharCode] || ''}
                 className={`inputWrap ${cyphered} ${this.props.focusLetter === cyphered ? 'focus' : ''}`}
                 cyphered={cyphered}
@@ -105,21 +106,42 @@ class Game extends React.Component {
     }
 
     checkPuzzle(solveAttempt) {
+        // TODO: mark where same letter used multiple times?
         for (let i = 0; i < solveAttempt.length; ++i) {
             if (solveAttempt[i] !== this.state.goal[i] ){
                 return false;
             }
         }
-        console.log("It's a win!");
+        return true;
     }
 
     handleChange(i, cyphered, letter) {
         const solveAttempt = this.state.solveAttempt.slice();
         solveAttempt[cyphered.charCodeAt(0) - "A".charCodeAt(0)] = letter.toUpperCase();
-        this.checkPuzzle(solveAttempt)
+        if (this.checkPuzzle(solveAttempt)){
+            // TODO: report win
+        } else {
+            // Walk forward in the puzzle to find the next input that's empty, and select that
+            for (let j = i+1; j < this.state.quote.Quote.length; ++j) {
+                const character = this.state.quote.Quote[j].toUpperCase();
+                const charCode = character.charCodeAt(0) - 'A'.charCodeAt(0);
+                const isLetter = charCode >= 0 && charCode <= 26;
+                if (!isLetter) {
+                    continue;
+                }
+                const cypheredCharCode = this.state.cypher[charCode].charCodeAt(0) - 'A'.charCodeAt(0);
+                if (!solveAttempt[cypheredCharCode]){
+                    const elem = document.getElementById("input-"+j);
+                    if (elem) {
+                        elem.focus();
+                    }
+                    break;
+                }
+            }
+            // TODO: find next empty letter by walking the puzzle, element.focus()
+        }
         console.log("handleChange", i, cyphered, letter);
         this.setState({solveAttempt: solveAttempt});
-        // TODO: find next empty letter by walking the puzzle, element.focus()
     }
 
     handleFocus(letter) {
