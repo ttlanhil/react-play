@@ -24,6 +24,7 @@ function LetterDisplay(props) {
                 onFocus={props.onFocus}
                 onBlur={props.onBlur}
                 onClick={(e) => e.currentTarget.select()}
+                disabled={props.disabled ? "disabled" : ""}
             />
         </span>
     );
@@ -47,6 +48,7 @@ class Puzzle extends React.Component {
                 onChange={() => this.props.onChange(i, cyphered)}
                 onFocus={() => this.props.onFocus(cyphered)}
                 onBlur={() => this.props.onBlur()}
+                disabled={this.props.disabled}
             />
         );
     }
@@ -186,6 +188,7 @@ class Game extends React.Component {
                         onChange={(i, cyphered) => this.handleChange(i, cyphered)}
                         onFocus={(letter) => this.handleFocus(letter)}
                         onBlur={() => this.handleBlur()}
+                        disabled={this.state.finished}
                     />
                 </div>
                 <div>
