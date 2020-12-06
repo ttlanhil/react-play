@@ -228,7 +228,7 @@ class Game extends React.Component {
 
         navButtons.push(<button key='hint' onClick={() => this.getHint()}>Hint</button>);
 
-        if (this.state.quoteNumber < quotes.length) {
+        if (this.state.quoteNumber < quotes.length - 1) {
             navButtons.push(<button key='next' onClick={() => this.changePuzzle(this.state.quoteNumber+1)}>Next</button>);
         }
 
