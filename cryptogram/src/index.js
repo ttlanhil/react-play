@@ -121,9 +121,11 @@ class Game extends React.Component {
         if (this.checkPuzzle(solveAttempt)){
             // TODO: report win
         } else {
-            // Walk forward in the puzzle to find the next input that's empty, and select that
-            for (let j = i+1; j < this.state.quote.Quote.length; ++j) {
-                const character = this.state.quote.Quote[j].toUpperCase();
+            // Walk forward in the puzzle to find the next input that's empty, and select that.
+            // if we hit the end, loop back to the start
+            for (let j = 1; j < this.state.quote.Quote.length; ++j) {
+                const idx = (j + i) % this.state.quote.Quote.length;
+                const character = this.state.quote.Quote[idx].toUpperCase();
                 const charCode = character.charCodeAt(0) - 'A'.charCodeAt(0);
                 const isLetter = charCode >= 0 && charCode <= 26;
                 if (!isLetter) {
@@ -131,7 +133,7 @@ class Game extends React.Component {
                 }
                 const cypheredCharCode = this.state.cypher[charCode].charCodeAt(0) - 'A'.charCodeAt(0);
                 if (!solveAttempt[cypheredCharCode]){
-                    const elem = document.getElementById("input-"+j);
+                    const elem = document.getElementById("input-"+idx);
                     if (elem) {
                         elem.focus();
                     }
@@ -139,7 +141,6 @@ class Game extends React.Component {
                 }
             }
         }
-        console.log("handleChange", i, cyphered, letter);
         this.setState({solveAttempt: solveAttempt});
     }
 
