@@ -12,6 +12,11 @@ function isLetter(charCode) {
     return charCode >= 0 && charCode <= 26;
 }
 
+function getRandomItemFromSet(set) {
+    let items = Array.from(set);
+    return items[Math.floor(Math.random() * items.length)];
+}
+
 
 function LetterDisplay(props) {
     return (
@@ -38,6 +43,9 @@ class Puzzle extends React.Component {
         }
         const cyphered = this.props.cypher[charCode]
         const cypheredCharCode = getCharCode(cyphered);
+        const charUpper = character.toUpperCase();
+        const isHinted = this.props.hints.has(charUpper);
+        const disabled = this.props.disabled || isHinted;
         return (
             <LetterDisplay
                 key={i}
@@ -48,7 +56,7 @@ class Puzzle extends React.Component {
                 onChange={() => this.props.onChange(i, cyphered)}
                 onFocus={() => this.props.onFocus(cyphered)}
                 onBlur={() => this.props.onBlur()}
-                disabled={this.props.disabled}
+                disabled={disabled}
             />
         );
     }
@@ -88,7 +96,7 @@ function sattoloCycle(items, filterReverseSet) {
     // build reverse mapping; the goal of the player is to match this
     for (let i = 0; i < items.length; ++i) {
         const character = String.fromCharCode(i + 'A'.charCodeAt(0));
-        if (!filterReverseSet.has(character)) {
+        if (filterReverseSet && !filterReverseSet.has(character)) {
             continue;
         }
         reverseMap[getCharCode(items[i])] = character;
@@ -103,7 +111,8 @@ class Game extends React.Component {
         const quote = quotes[quoteNumber];
         // build a cypher for the letters A-Z
         let cypher = [...Array(26)].map((_, i) => String.fromCharCode('A'.charCodeAt(0) + i));
-        const goal = sattoloCycle(cypher, new Set(quote.Quote.toUpperCase()));
+        const lettersInUse = new Set(quote.Quote.toUpperCase().split("").filter(x => !isLetter(x)));
+        const goal = sattoloCycle(cypher, lettersInUse);
         return {
             quoteNumber: quoteNumber,
             quote: quote,
@@ -112,6 +121,8 @@ class Game extends React.Component {
             solveAttempt: Array(26).fill(null),
             focusLetter: '',
             finished: false,
+            hints: new Set(),
+            lettersInUse: lettersInUse,
         }
     }
 
@@ -133,6 +144,7 @@ class Game extends React.Component {
                 return false;
             }
         }
+        this.setState({finished: true});
         return true;
     }
 
@@ -140,9 +152,7 @@ class Game extends React.Component {
         const letter = document.getElementById("input-"+i).value;
         const solveAttempt = this.state.solveAttempt.slice();
         solveAttempt[getCharCode(cyphered)] = letter.toUpperCase();
-        if (this.checkPuzzle(solveAttempt)){
-            this.setState({finished: true});
-        } else {
+        if (!this.checkPuzzle(solveAttempt)){
             // Walk forward in the puzzle to find the next input that's empty, and select that.
             // if we hit the end, loop back to the start
             for (let j = 1; j < this.state.quote.Quote.length; ++j) {
@@ -173,12 +183,51 @@ class Game extends React.Component {
         this.setState({focusLetter: ''});
     }
 
+    getHint() {
+        // take a random entry from lettersInUse that's not yet in hints, and add it
+        let hints = this.state.hints;
+        if (hints.length >= this.state.lettersInUse.length) {
+            // if every letter is a hint, why are you asking for more?
+            return;
+        }
+        let incorrect = new Set();
+        let empty = new Set();
+
+        for (let i = 0; i < this.state.solveAttempt.length; ++i) {
+            if (!this.state.goal[i]) {
+                continue;
+            }
+            if (!this.state.solveAttempt[i]) {
+                empty.add(i)
+            } else if (this.state.solveAttempt[i] !== this.state.goal[i]) {
+                incorrect.add(i);
+            }
+        }
+
+        let newHint = incorrect.size > 0 ? getRandomItemFromSet(incorrect) : getRandomItemFromSet(empty);
+
+        const solveAttempt = this.state.solveAttempt.slice();
+        solveAttempt[newHint] = this.state.goal[newHint];
+        newHint = this.state.goal[newHint];
+        hints.add(newHint);
+
+        this.checkPuzzle(solveAttempt);
+
+        this.setState({
+            hints: hints,
+            solveAttempt: solveAttempt,
+        });
+    }
+
     render() {
 
         let navButtons = [];
         if (this.state.quoteNumber > 0) {
             navButtons.push(<button key='prev' onClick={() => this.changePuzzle(this.state.quoteNumber-1)}>Previous</button>);
         }
+
+        navButtons.push(<button key='hint' onClick={() => this.getHint()}>Hint</button>);
+
         if (this.state.quoteNumber < quotes.length) {
             navButtons.push(<button key='next' onClick={() => this.changePuzzle(this.state.quoteNumber+1)}>Next</button>);
         }
@@ -189,7 +238,6 @@ class Game extends React.Component {
         } else {
             status = `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
         }
-        // TODO: allow going to prev/next puzzles
 
         return (
             <div>
@@ -204,6 +252,7 @@ class Game extends React.Component {
                         cypher={this.state.cypher}
                         solveAttempt={this.state.solveAttempt}
                         focusLetter={this.state.focusLetter}
+                        hints={this.state.hints}
                         onChange={(i, cyphered) => this.handleChange(i, cyphered)}
                         onFocus={(letter) => this.handleFocus(letter)}
                         onBlur={() => this.handleBlur()}
