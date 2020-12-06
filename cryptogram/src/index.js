@@ -154,7 +154,8 @@ class Game extends React.Component {
 
     render() {
 
-        let status = this.state.finished ? "Game solved!" : `${this.state.quoteNumber+1} of ${quotes.length}`
+        let status = this.state.finished ? "Game solved!" : `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
+        // TODO: allow going to prev/next puzzles
 
         return (
             <div>
