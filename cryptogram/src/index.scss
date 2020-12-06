@@ -1,0 +1,33 @@
+input {
+    width: 1em;
+    margin: 1px;
+    margin-bottom: 2em;
+    border: 0;
+    border-bottom: 1px solid black;
+}
+
+.spacer {
+    width: 1em;
+    display: inline-block;
+}
+
+.nowrap {
+    white-space: nowrap;
+    margin-right: 2em;
+    display: inline-block;
+}
+
+.inputWrap::after {
+    position: relative;
+    left: -0.9em;
+    bottom: -1.25em;
+    width: 0.75em;
+}
+
+$letters: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z;
+
+@each $letter in $letters {
+    .inputWrap.#{$letter}::after {
+        content: "#{$letter}";
+    }
+}
