@@ -31,7 +31,7 @@ class Puzzle extends React.Component {
                 cyphered={cyphered}
                 onChange={() => this.props.onChange(i, cyphered, character)}
                 onFocus={() => this.props.onFocus(cyphered)}
-                onBlur={() => this.props.onBlur(cyphered)}
+                onBlur={() => this.props.onBlur()}
             />
         );
     }
@@ -148,7 +148,7 @@ class Game extends React.Component {
         this.setState({focusLetter: letter});
     }
 
-    handleBlur(letter) {
+    handleBlur() {
         this.setState({focusLetter: ''});
     }
 
@@ -166,7 +166,7 @@ class Game extends React.Component {
                         focusLetter={this.state.focusLetter}
                         onChange={(i, cyphered, letter) => this.handleChange(i, cyphered, letter)}
                         onFocus={(letter) => this.handleFocus(letter)}
-                        onBlur={(letter) => this.handleBlur(letter)}
+                        onBlur={() => this.handleBlur()}
                     />
                 </div>
                 <div>
