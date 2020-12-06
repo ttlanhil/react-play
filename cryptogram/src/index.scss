@@ -24,6 +24,10 @@ input {
     width: 0.75em;
 }
 
+.focus.inputWrap::after {
+    color: #F00;
+}
+
 $letters: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z;
 
 @each $letter in $letters {

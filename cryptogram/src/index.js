@@ -26,7 +26,7 @@ class Puzzle extends React.Component {
             <LetterDisplay
                 key={i}
                 value={this.props.solveAttempt[cypheredCharCode] || ''}
-                className={`inputWrap ${this.props.cyphered}`}
+                className={`inputWrap ${cyphered} ${this.props.focusLetter === cyphered ? 'focus' : ''}`}
                 cyphered={cyphered}
                 onChange={() => this.props.onChange(i, cyphered, character)}
                 onFocus={() => this.props.onFocus(cyphered)}
