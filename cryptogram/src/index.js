@@ -138,7 +138,6 @@ class Game extends React.Component {
                     break;
                 }
             }
-            // TODO: find next empty letter by walking the puzzle, element.focus()
         }
         console.log("handleChange", i, cyphered, letter);
         this.setState({solveAttempt: solveAttempt});
