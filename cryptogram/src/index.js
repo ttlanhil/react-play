@@ -94,6 +94,7 @@ class Game extends React.Component {
             goal: goal,
             solveAttempt: Array(26).fill(null),
             focusLetter: '',
+            finished: false,
         }
     }
 
@@ -119,7 +120,7 @@ class Game extends React.Component {
         const solveAttempt = this.state.solveAttempt.slice();
         solveAttempt[cyphered.charCodeAt(0) - "A".charCodeAt(0)] = letter.toUpperCase();
         if (this.checkPuzzle(solveAttempt)){
-            // TODO: report win
+            this.setState({finished: true});
         } else {
             // Walk forward in the puzzle to find the next input that's empty, and select that.
             // if we hit the end, loop back to the start
@@ -153,10 +154,13 @@ class Game extends React.Component {
     }
 
     render() {
+
+        let status = this.state.finished ? "Game solved!" : `${this.state.quoteNumber+1} of ${quotes.length}`
+
         return (
             <div>
                 <div>
-                    {this.state.quoteNumber+1} of {quotes.length}
+                    {status}
                 </div>
                 <div>
                     <Puzzle
