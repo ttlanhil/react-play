@@ -3,6 +3,25 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import quotes from './quotes.json';
 
+function JSONStringifier(key, value) {
+    if (typeof value === 'object' && value instanceof Set) {
+        return [...value];
+    }
+    return value;
+}
+
+function getStoredState(name, defaultValue="{}") {
+    return JSON.parse(localStorage.getItem(name)||defaultValue);
+}
+
+function setStoredState(name, value) {
+    localStorage.setItem(name, JSON.stringify(value, JSONStringifier));
+}
+
+function updateStoredState(name, updates) {
+    let current = getStoredState(name);
+    setStoredState(name, Object.assign(current, updates));
+}
 
 function getCharCode(character) {
     return character.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
@@ -106,35 +125,55 @@ function sattoloCycle(items, filterReverseSet) {
 }
 
 class Game extends React.Component {
-    buildPuzzle(quoteNumber) {
+    storeGameState(updates) {
+        this.setState(updates);
+        updateStoredState("cryptogram.quote_" + this.state.quoteNumber, updates);
+    }
+
+    buildPuzzle(quoteNumber, reset = false) {
         // select relevant quote
         const quote = quotes[quoteNumber];
-        // build a cypher for the letters A-Z
-        let cypher = [...Array(26)].map((_, i) => String.fromCharCode('A'.charCodeAt(0) + i));
         const lettersInUse = new Set(quote.Quote.toUpperCase().split("").filter(x => !isLetter(x)));
-        const goal = sattoloCycle(cypher, lettersInUse);
+
+        const puzzleProgress = reset ? {} : getStoredState("cryptogram.quote_" + quoteNumber);
+        const finished = puzzleProgress["finished"] || false;
+        let cypher = puzzleProgress["cypher"];
+        let goal = puzzleProgress["goal"];
+
+        if (!(cypher && goal)) {
+            // build a cypher for the letters A-Z
+            cypher = [...Array(26)].map((_, i) => String.fromCharCode('A'.charCodeAt(0) + i));
+            goal = sattoloCycle(cypher, lettersInUse);
+            // store the cyphering of this puzzle as well
+            setStoredState("cryptogram.quote_" + quoteNumber, {
+                cypher: cypher,
+                goal: goal,
+            });
+        }
+
+
         return {
             quoteNumber: quoteNumber,
             quote: quote,
             cypher: cypher,
             goal: goal,
-            solveAttempt: Array(26).fill(null),
+            solveAttempt: puzzleProgress["solveAttempt"] || Array(26).fill(null),
             focusLetter: '',
-            finished: false,
-            hints: new Set(),
+            finished: finished,
+            hints: new Set(puzzleProgress["hints"]),
             lettersInUse: lettersInUse,
         }
     }
 
     constructor(props) {
         super(props);
-        const quoteNumber = 0;
-        // TODO: store progress in cookie?
+        const quoteNumber = getStoredState("cryptogram.quoteNumber", 0);
         this.state = this.buildPuzzle(quoteNumber);
     }
 
-    changePuzzle(quoteNumber) {
-        this.setState(this.buildPuzzle(quoteNumber));
+    changePuzzle(quoteNumber, reset = false) {
+        setStoredState("cryptogram.quoteNumber", quoteNumber);
+        this.setState(this.buildPuzzle(quoteNumber, reset));
     }
 
     checkPuzzle(solveAttempt) {
@@ -144,7 +183,7 @@ class Game extends React.Component {
                 return false;
             }
         }
-        this.setState({finished: true});
+        this.storeGameState({finished: true});
         return true;
     }
 
@@ -172,7 +211,7 @@ class Game extends React.Component {
                 }
             }
         }
-        this.setState({solveAttempt: solveAttempt});
+        this.storeGameState({solveAttempt: solveAttempt});
     }
 
     handleFocus(letter) {
@@ -213,7 +252,7 @@ class Game extends React.Component {
 
         this.checkPuzzle(solveAttempt);
 
-        this.setState({
+        this.storeGameState({
             hints: hints,
             solveAttempt: solveAttempt,
         });
@@ -227,6 +266,8 @@ class Game extends React.Component {
         }
 
         navButtons.push(<button key='hint' onClick={() => this.getHint()}>Hint</button>);
+
+        navButtons.push(<button key='reset' onClick={() => this.changePuzzle(this.state.quoteNumber, true)}>Reset Game</button>);
 
         if (this.state.quoteNumber < quotes.length - 1) {
             navButtons.push(<button key='next' onClick={() => this.changePuzzle(this.state.quoteNumber+1)}>Next</button>);
