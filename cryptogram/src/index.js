@@ -76,7 +76,7 @@ class Puzzle extends React.Component {
             wordOffsets[i] = wordOffsets[i-1] + words[i-1].length + 1;
         }
         return (
-            <form autocomplete="off">
+            <form autoComplete="off">
             {words.map((word, i) => this.renderWord(word, wordOffsets[i]))}
             </form>
         )
