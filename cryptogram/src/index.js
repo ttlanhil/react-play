@@ -126,7 +126,7 @@ function sattoloCycle (items, filterReverseSet) {
     for (let i = 0; i < items.length; ++i) {
         const character = String.fromCharCode(i + "A".charCodeAt(0));
 
-        if (!filterReverseSet || !filterReverseSet.has(character)) {
+        if (filterReverseSet.has(character)) {
             reverseMap[getCharCode(items[i])] = character;
         }
     }
@@ -146,6 +146,7 @@ class Game extends React.Component {
             lettersInUse = new Set(quote.Quote.toUpperCase().split("").filter((x) => !isLetter(x))),
             puzzleProgress = reset ? {} : getStoredState(`cryptogram.quote_${quoteNumber}`),
             finished = puzzleProgress.finished || false;
+
         let {cypher} = puzzleProgress,
             {goal} = puzzleProgress;
 
@@ -159,7 +160,6 @@ class Game extends React.Component {
                 goal
             });
         }
-
 
         return {
             quoteNumber,
