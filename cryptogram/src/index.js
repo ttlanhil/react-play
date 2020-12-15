@@ -186,7 +186,7 @@ class Game extends React.Component {
     getHint() {
         // take a random entry from lettersInUse that's not yet in hints, and add it
         let hints = this.state.hints;
-        if (hints.length >= this.state.lettersInUse.length) {
+        if (hints.size >= this.state.lettersInUse.length) {
             // if every letter is a hint, why are you asking for more?
             return;
         }
