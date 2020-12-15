@@ -232,17 +232,21 @@ class Game extends React.Component {
             navButtons.push(<button key='next' onClick={() => this.changePuzzle(this.state.quoteNumber+1)}>Next</button>);
         }
 
-        let status;
+        const gameNumber = `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
+        let status = "Game ";
         if (this.state.finished) {
-            status = "Game solved!"
+            status += "solved!"
         } else {
-            status = `Playing game ${this.state.quoteNumber+1} of ${quotes.length}`;
+            status += "in progress...";
         }
+        status += " Used " + (this.state.hints.size || 0) + " hint" + (this.state.hints.size !== 1 ? "s" : "");
 
         return (
             <div>
                 <div className="gameStatus">
                     {navButtons}
+                    <br /><br />
+                    {gameNumber}
                     <br />
                     {status}
                 </div>
