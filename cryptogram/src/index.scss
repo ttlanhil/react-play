@@ -1,9 +1,14 @@
+.gameStatus {
+    margin: 5px 0;
+}
+
 input {
     width: 1em;
     margin: 1px;
     margin-bottom: 2em;
     border: 0;
     border-bottom: 1px solid black;
+    text-align: center;
 }
 
 .spacer {
@@ -22,6 +27,7 @@ input {
     left: -0.9em;
     bottom: -1.25em;
     width: 0.75em;
+    text-align: center;
 }
 
 .focus.inputWrap::after {
